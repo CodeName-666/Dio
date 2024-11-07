@@ -1,2 +1,2 @@
 # Dio
-Library for Dio class with optional features
+Library for Dio class with optional features.
