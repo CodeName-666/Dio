@@ -9,6 +9,7 @@
  */
 
 #include "Dio.h"
+#include "Dio_Debug.h"
 
 Dio::Dio() : m_dio(GPIO_NV), m_mode(DIO_AS_INPUT_WITH_PULLUP), m_interrupt_mode(DIO_INTERRUPT_NOT_USED)
 {
@@ -74,13 +75,16 @@ Level_t Dio::get(void)
     return ret;
 }
 
-void Dio::enableInterrupts(InterruptMode_t interrupt_mode, DioInterrupt cbk)
+void Dio::enableInterrupts(InterruptMode_t interrupt_mode)
 {
     if (m_dio != GPIO_NV && interrupt_mode != DIO_INTERRUPT_NOT_USED)
     {
         m_interrupt_mode = interrupt_mode;
         setInterrupInterface(interrupt_mode);
-        attachInterrupt(digitalPinToInterrupt(static_cast<uint8_t>(m_dio)), reinterpret_cast<void(*)()>(cbk), static_cast<uint8_t>(interrupt_mode));
+        Dio_attachInterrupt(digitalPinToInterrupt(static_cast<uint8_t>(m_dio)), 
+                            reinterpret_cast<voidDioFuncPtrArg>(interruptHandler),
+                            static_cast<void*>(this), 
+                            static_cast<uint8_t>(interrupt_mode));
     }
 }
 
@@ -96,6 +100,12 @@ void Dio::loop(void)
     {
         Level_t current_level = get();
         eventHandler(current_level);
+    }
+
+    if(changed)
+    {
+        DBIF_LOG_INFO("INTERRUPT TRIGGERED FROM IO %i", (int)getDio());
+        changed = false;
     }
 }
 
@@ -201,6 +211,7 @@ void Dio::eventHandler(Level_t current_level)
 #endif
         }
 
+        EVENT_EMIT(m_on_change_signal,this);
         old_level = current_level;
     }
 }
@@ -240,3 +251,14 @@ inline void Dio::execCallback(DioCallback cbk)
     }
 }
 #endif
+
+
+ void Dio::interruptHandler(Dio* interrupt_source)
+ {
+    //DBIF_LOG_INFO("INTERRUPT TRIGGERED FROM IO %i", (int)interrupt_source->getDio());
+    interrupt_source->start = micros();
+    interrupt_source->changed = true;
+    Level_t current_level = interrupt_source->get();
+    interrupt_source->eventHandler(current_level);
+    interrupt_source->stop = micros();
+ }

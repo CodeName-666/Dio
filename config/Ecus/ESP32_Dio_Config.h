@@ -11,7 +11,6 @@
 
 #include <Arduino.h>
 
-
 #define DIO_NUMBER_OF_IO               19
 
 typedef enum
@@ -49,6 +48,20 @@ typedef enum
 
 #endif
 
+typedef void (*voidDioFuncPtrArg)(void*);
+
+
+extern "C"
+{
+	extern void __attachInterruptFunctionalArg(uint8_t pin, voidDioFuncPtrArg userFunc, void * arg, int intr_type, bool functional);
+}
+
+
+inline static void Dio_attachInterrupt(uint8_t pin, voidDioFuncPtrArg intRoutine,void * arg, int mode)
+{
+	// use the local interrupt routine which takes the ArgStructure as argument
+	__attachInterruptFunctionalArg (digitalPinToGPIONumber(pin), (voidDioFuncPtrArg) intRoutine, arg, mode, false);
+}
 
 
 #endif /* SENSORS_SOURCE_05_PERIPERIAL_DIO_ESP32_DIO_CONFIG_H_ */
