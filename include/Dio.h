@@ -116,10 +116,7 @@ public:
     */
    void loop(void);
 
-   /**
-    * @brief Handles the interrupt event and emits or executes the appropriate callback.
-    */
-   inline void onInterrupt(void);
+
 
 #if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_CALLBACKS
    /**
@@ -179,6 +176,11 @@ protected:
     */
    void eventHandler(Level_t current_level);
 
+   /**
+    * @brief Handles the interrupt event and emits or executes the appropriate callback.
+    */
+   inline void onInterrupt(DIO_INTERFACE callback_or_signal);
+
 public: // Interrupt interfaces
 #if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_EVENTS
    EVENT_SIGNAL(on_change, Dio*);
@@ -190,6 +192,8 @@ public: // Interrupt interfaces
 
 private:
    static void interruptHandler(Dio* interrupt_source);
+
+
 #if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_CALLBACKS
    DioCallback m_on_change_callback = nullptr;
    DioCallback m_on_rising_callback = nullptr;
@@ -198,14 +202,10 @@ private:
    DioCallback m_on_high_callback = nullptr;
 #endif
 
-   bool changed = false;
    Dio_t m_dio; /**< The digital I/O pin number. */
    Mode_t m_mode; /**< The mode of the pin. */
    InterruptMode_t m_interrupt_mode; /**< The interrupt mode for the pin. */
-   DIO_INTERFACE m_interface; /**< The interface for handling interrupts. */
-public:
-   uint32_t start;
-   uint32_t stop;
+
 };
 
 #endif /* _DIO_DIO_H_ */

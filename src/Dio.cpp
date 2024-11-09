@@ -80,7 +80,6 @@ void Dio::enableInterrupts(InterruptMode_t interrupt_mode)
     if (m_dio != GPIO_NV && interrupt_mode != DIO_INTERRUPT_NOT_USED)
     {
         m_interrupt_mode = interrupt_mode;
-        setInterrupInterface(interrupt_mode);
         Dio_attachInterrupt(digitalPinToInterrupt(static_cast<uint8_t>(m_dio)), 
                             reinterpret_cast<voidDioFuncPtrArg>(interruptHandler),
                             static_cast<void*>(this), 
@@ -101,20 +100,14 @@ void Dio::loop(void)
         Level_t current_level = get();
         eventHandler(current_level);
     }
-
-    if(changed)
-    {
-        DBIF_LOG_INFO("INTERRUPT TRIGGERED FROM IO %i", (int)getDio());
-        changed = false;
-    }
 }
 
-void Dio::onInterrupt(void)
+void Dio::onInterrupt(DIO_INTERFACE callback_or_signal)
 {
 #if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_EVENTS
-    EVENT_EMIT(*m_interface, this);
+    EVENT_EMIT(*callback_or_signal, this);
 #elif DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_CALLBACKS
-    execCallback(m_interface);
+    execCallback(callback_or_signal);
 #endif
 }
 
@@ -125,50 +118,6 @@ void Dio::init(Dio_t dio, Mode_t mode)
     if (dio != GPIO_NV)
     {
         setMode(mode);
-    }
-}
-
-void Dio::setInterrupInterface(InterruptMode_t mode)
-{
-    switch (mode)
-    {
-        case INTERRUPT_ON_RISING:
-#if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_EVENTS
-            m_interface = &m_on_rising_signal;
-#elif DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_CALLBACKS
-            m_interface = m_on_rising_callback;
-#endif
-            break;
-        case INTERRUPT_ON_FALLING:
-#if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_EVENTS
-            m_interface = &m_on_falling_signal;
-#elif DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_CALLBACKS
-            m_interface = m_on_falling_callback;
-#endif
-            break;
-        case INTERRUPT_ON_CHANGE:
-#if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_EVENTS
-            m_interface = &m_on_change_signal;
-#elif DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_CALLBACKS
-            m_interface = m_on_change_callback;
-#endif
-            break;
-#if defined(ESP32) || defined(ESP8266)
-        case INTERRUPT_ON_LOW:
-#if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_EVENTS
-            m_interface = &m_on_low_signal;
-#elif DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_CALLBACKS
-            m_interface = m_on_low_callback;
-#endif
-            break;
-        case INTERRUPT_ON_HIGH:
-#if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_EVENTS
-            m_interface = &m_on_high_signal;
-#elif DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_CALLBACKS
-            m_interface = m_on_high_callback;
-#endif
-            break;
-#endif
     }
 }
 
@@ -256,9 +205,7 @@ inline void Dio::execCallback(DioCallback cbk)
  void Dio::interruptHandler(Dio* interrupt_source)
  {
     //DBIF_LOG_INFO("INTERRUPT TRIGGERED FROM IO %i", (int)interrupt_source->getDio());
-    interrupt_source->start = micros();
-    interrupt_source->changed = true;
     Level_t current_level = interrupt_source->get();
     interrupt_source->eventHandler(current_level);
-    interrupt_source->stop = micros();
+
  }
