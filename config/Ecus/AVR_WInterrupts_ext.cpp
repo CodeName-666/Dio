@@ -24,6 +24,12 @@
   Modified 1 August 2010 by Mark Sproul
 */
 
+#ifndef AVR_WINTERRUPTS_EXT_H
+#define AVR_WINTERRUPTS_EXT_H
+
+
+#if ARDUINO_ARCH_AVR
+
 #include <inttypes.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -31,6 +37,8 @@
 #include <stdio.h>
 
 #include "wiring_private.h"
+
+#include "AVR_Dio_Config.h"
 
 /*Define the new Funciton Pointer Data Type with argurment pointer*/ 
 typedef void (*voidDioFuncPtrArg)(volatile void*);
@@ -111,7 +119,7 @@ static volatile void* interruptArgument[EXTERNAL_NUM_INTERRUPTS] = {
 /**
  * This is the updated attachInterrupt function, which allows now also to handover parameter. 
  */
-void attachInterruptArgs(uint8_t interruptNum, voidDioFuncPtrArg userFunc, void * arg, int mode) {
+void attachInterruptArg(uint8_t interruptNum, voidDioFuncPtrArg userFunc, void * arg, int mode) {
   if(interruptNum < EXTERNAL_NUM_INTERRUPTS) {
     interruptFunction[interruptNum] = userFunc;
     
@@ -242,7 +250,7 @@ void attachInterruptArgs(uint8_t interruptNum, voidDioFuncPtrArg userFunc, void 
       MCUCR = (MCUCR & ~((1 << ISC10) | (1 << ISC11))) | (mode << ISC10);
       GIMSK |= (1 << INT1);
     #else
-      #warning attachInterruptArgs may need some more work for this cpu (case 1)
+      #warning attachInterruptArg may need some more work for this cpu (case 1)
     #endif
       break;
     
@@ -308,4 +316,6 @@ IMPLEMENT_ISR(INT1_vect, EXTERNAL_INT_1)
 IMPLEMENT_ISR(INT2_vect, EXTERNAL_INT_2)
 #endif
 
+#endif
+#endif
 #endif

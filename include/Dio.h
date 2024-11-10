@@ -25,13 +25,6 @@ typedef enum
 } Level_t;
 
 /**
- * @brief Type definition for callback functions used in interrupts.
- */
-typedef std::function<void(void)> DioCallback;
-
-typedef void (*DioInterrupt)(void);
-
-/**
  * @brief Class representing a digital I/O pin with configurable modes and interrupt handling.
  */
 class Dio

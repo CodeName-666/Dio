@@ -7,7 +7,7 @@
 
 #ifndef _ESP32_DIO_CONFIG_H_
 #define _ESP32_DIO_CONFIG_H_
-#if ESP32
+#if ARDUINO_ARCH_ESP32
 
 #include <Arduino.h>
 
@@ -16,6 +16,7 @@
 typedef enum
 {
   /*GPIO                Input    Output    Notes                              */
+    GPIO_NV = -1,
     GPIO_0  =   0, /*    OK         OK                                        */
     GPIO_1  =   1, /*    OK         OK                                        */
     GPIO_2  =   2, /*    OK         OK         connected to on-board LED      */
@@ -42,7 +43,7 @@ typedef enum
     GPIO_35 =  35, /*    OK         input only                                */
     GPIO_36 =  36, /*    OK         input only                                */
     GPIO_39 =  39, /*    OK         input only                                */
-    GPIO_NV    = 255
+   
 
 }Dio_t;
 

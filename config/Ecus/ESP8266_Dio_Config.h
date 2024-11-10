@@ -8,7 +8,7 @@
 #ifndef _ESP8266_DIO_CONFIG_H_
 #define _ESP8266_DIO_CONFIG_H_
 
-#if ESP8266
+#if ARDUINO_ARCH_ESP8266
 #include "Arduino.h"
 
 #define DIO_NUMBER_OF_IO               9
