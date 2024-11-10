@@ -46,7 +46,6 @@ typedef enum
 
 }Dio_t;
 
-#endif
 
 typedef void (*voidDioFuncPtrArg)(void*);
 
@@ -64,4 +63,5 @@ inline static void Dio_attachInterrupt(uint8_t pin, voidDioFuncPtrArg intRoutine
 }
 
 
+#endif
 #endif /* SENSORS_SOURCE_05_PERIPERIAL_DIO_ESP32_DIO_CONFIG_H_ */
