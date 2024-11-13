@@ -11,8 +11,8 @@
 #ifndef _DIO_DIO_H_
 #define _DIO_DIO_H_
 
-#include <Arduino.h>
-#include "../config/Dio_Config.h"
+
+#include "Dio_Config.h"
 
 
 /**

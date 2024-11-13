@@ -38,13 +38,66 @@
 
 #include "wiring_private.h"
 
-#include "AVR_Dio_Config.h"
+
+
 
 /*Define the new Funciton Pointer Data Type with argurment pointer*/ 
-typedef void (*voidDioFuncPtrArg)(volatile void*);
+typedef void (*voidDioFuncPtrArg)(void*);
 
-static void nothing(volatile void*) {
+static void nothing(void*) {
 }
+
+
+void interrupt_vector_1(void) 
+{
+  
+}
+
+
+void interrupt_vector_2(void)
+{
+  
+}
+
+
+void interrupt_vector_3(void)
+{
+  
+}
+
+
+void interrupt_vector_4(void)
+{
+  
+}
+
+
+void interrupt_vector_5(void)
+{
+  
+}
+
+
+void interrupt_vector_6(void)
+{
+  
+}
+
+
+void interrupt_vector_7(void)
+{
+  
+}
+
+
+void interrupt_vector_8(void)
+{
+  
+}
+
+
+
+
 
 /**
  * define the new Interrupt Function array in the same way as it was in the original file
@@ -53,31 +106,31 @@ static void nothing(volatile void*) {
 static volatile voidDioFuncPtrArg interruptFunction[EXTERNAL_NUM_INTERRUPTS] = {
 #if EXTERNAL_NUM_INTERRUPTS > 8
     #warning There are more than 8 external interrupts. Some callbacks may not be initialized.
-    nothing,
+    (voidDioFuncPtrArg)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 7
-    nothing,
+    (voidDioFuncPtrArg)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 6
-    nothing,
+    (voidDioFuncPtrArg)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 5
-    nothing,
+    (voidDioFuncPtrArg)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 4
-    nothing,
+    (voidDioFuncPtrArg)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 3
-    nothing,
+    (voidDioFuncPtrArg)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 2
-    nothing,
+    (voidDioFuncPtrArg)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 1
-    nothing,
+    (voidDioFuncPtrArg)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 0
-    nothing,
+    (voidDioFuncPtrArg)nothing,
 #endif
 };
 
@@ -85,7 +138,7 @@ static volatile voidDioFuncPtrArg interruptFunction[EXTERNAL_NUM_INTERRUPTS] = {
  * Crate a new array named interruptArguments, in the same way as the interruptFunction array was defined.
  * This is needed to store the arguments paramter, which will be set, when a interrupt will be triggered
  */
-static volatile void* interruptArgument[EXTERNAL_NUM_INTERRUPTS] = {
+static void* interruptArgument[EXTERNAL_NUM_INTERRUPTS] = {
 #if EXTERNAL_NUM_INTERRUPTS > 8
     #warning There are more than 8 external interrupts. Some callbacks may not be initialized.
     NULL,
@@ -122,7 +175,7 @@ static volatile void* interruptArgument[EXTERNAL_NUM_INTERRUPTS] = {
 void attachInterruptArg(uint8_t interruptNum, voidDioFuncPtrArg userFunc, void * arg, int mode) {
   if(interruptNum < EXTERNAL_NUM_INTERRUPTS) {
     interruptFunction[interruptNum] = userFunc;
-    
+   
     /*Here is the main change*/ 
     interruptArgument[interruptNum] = arg;
     // Configure the interrupt mode (trigger on low input, any change, rising
@@ -272,8 +325,8 @@ void attachInterruptArg(uint8_t interruptNum, voidDioFuncPtrArg userFunc, void *
 }
 
 #define IMPLEMENT_ISR(vect, interrupt) \
-  ISR(vect) { \
-    volatile void* arg = interruptArgument[interrupt]; \
+  ISR(vect##_new) { \
+    void* arg = interruptArgument[interrupt]; \
     interruptFunction[interrupt](arg); \
   }
 
@@ -306,6 +359,8 @@ IMPLEMENT_ISR(INT4_vect, EXTERNAL_INT_0)
 IMPLEMENT_ISR(INT5_vect, EXTERNAL_INT_1)
 IMPLEMENT_ISR(INT6_vect, EXTERNAL_INT_6)
 IMPLEMENT_ISR(INT7_vect, EXTERNAL_INT_7)
+
+
 
 #else
 

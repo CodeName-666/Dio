@@ -1,54 +1,66 @@
 {
-    "name": "Dio",
-    "version": "1.1.3",
-    "license": "MIT",
-    "description": "Library for Dio class with optional features",
-    "keywords": ["Dio", "library", "optional features"],
-    "frameworks": ["arduino"],
-    "platforms": ["atmelavr", "esp32", "esp8266"],
-    "authors": [
-      {
-          "name": "Christof Seidel",
-          "email": "SeidC2221@gmail.com",
-          "maintainer": true
-      }
-    ],
-    
-    "repository": {
-      "type": "git",
-      "url": "Émpty"
+  "name": "Dio",
+  "version": "1.1.3",
+  "license": "MIT",
+  "description": "Library for Dio class with optional features",
+  "keywords": [
+    "Dio",
+    "library",
+    "optional features"
+  ],
+  "frameworks": [
+    "arduino"
+  ],
+  "platforms": [
+    "atmelavr",
+    "esp32",
+    "esp8266"
+  ],
+  "authors": [
+    {
+      "name": "Christof Seidel",
+      "email": "SeidC2221@gmail.com",
+      "maintainer": true
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "Émpty"
+  },
+  "dependencies": [
+    {
+      "owner": "codename666",
+      "name": "Events",
+      "version": "^2.3.3"
     },
-    "dependencies": 
-    [
-      {
-        "owner": "codename666",
-        "name": "Events",
-        "version": "^2.3.3"
-      },
-      {
-        "owner": "codename666",
-        "name": "DebugIf",
-        "version": "^1.3.1"
-      }
-    ]	,
-    
-    "srcDir": "src",
+    {
+      "owner": "codename666",
+      "name": "DebugIf",
+      "version": "^1.3.1"
+    }
+  ],
+  "headers": [
+    "Dio.h",
+    "Dio_Config.h",
+    "Dio_Debug.h",
+    "Dio_Feature",
+    "AVR_Dio_Config.h",
+    "ESP32_Dio_Config.h",
+    "ESP8266_Dio_Config.h"
+  ],
+  "examples": [
+    "examples/basic_usage/basic_usage.ino"
+  ],
+
+    "srcDir": [
+      "src",
+      "config/Ecus"
+
+    ],
     "includeDir": [
       "include",
       "config",
       "config/Ecus"
-    ],
-    "headers": [
-      "Dio.h",
-      "Dio_Config.h",
-      "Dio_Debug.h",
-      "Dio_Feature",
-      "AVR_Dio_Config.h",
-      "ESP32_Dio_Config.h",
-      "ESP8266_Dio_Config.h"
-    ],
-    "examples": [
-      "examples/basic_usage/basic_usage.ino"
     ]
-  }
-  
+
+}

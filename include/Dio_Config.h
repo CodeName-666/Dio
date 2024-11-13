@@ -8,6 +8,13 @@
 
 #include "Dio_Feature.h"
 
+#ifdef IMPLEMENT_ISR
+    #undef IMPLEMENT_ISR
+    #define IMPLEMENT_ISR do {} while(0)
+#endif 
+//#include "Arduino.h"
+
+
 #if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_EVENTS
 #include "Event.h"
 #endif
@@ -21,6 +28,10 @@
 #else
 #error "ECU not Supported"
 #endif
+
+
+#define IMPLEMENT_ISR(vect, interrupt) do {} while(0)
+#include "Arduino.h"
 
 /**
  * @brief Enumeration of interrupt modes for GPIO pins.
