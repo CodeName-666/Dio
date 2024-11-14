@@ -7,31 +7,23 @@
  */
 
 #include "Dio_Feature.h"
-
-#ifdef IMPLEMENT_ISR
-    #undef IMPLEMENT_ISR
-    #define IMPLEMENT_ISR do {} while(0)
-#endif 
-//#include "Arduino.h"
-
+#include "Arduino.h"
 
 #if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_EVENTS
-#include "Event.h"
+    #include "Event.h"
 #endif
 
 #if ARDUINO_ARCH_ESP8266
-#include "Ecus/ESP8266_Dio_Config.h"
+    #include "Ecus/ESP8266_Dio_Config.h"
 #elif ARDUINO_ARCH_AVR
-#include "Ecus/Avr_Dio_Config.h"
+    #include "Ecus/Avr_Dio_Config.h"
 #elif ARDUINO_ARCH_ESP32
-#include "Ecus/ESP32_Dio_Config.h"
+    #include "Ecus/ESP32_Dio_Config.h"
 #else
-#error "ECU not Supported"
+    #error "ECU not Supported"
 #endif
 
 
-#define IMPLEMENT_ISR(vect, interrupt) do {} while(0)
-#include "Arduino.h"
 
 /**
  * @brief Enumeration of interrupt modes for GPIO pins.

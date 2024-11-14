@@ -37,147 +37,148 @@
 #include <stdio.h>
 
 #include "wiring_private.h"
+#include "Ecus/AVR_Dio_Config.h"
+
+
+static Interrupt_Source_t interruptArgument[EXTERNAL_NUM_INTERRUPTS];
+
+
+#define IMPLEMENT_ISR_FUNCTION(vect)                                                       \
+ static void interrupt_function_##vect(void)                                               \
+ {                                                                                         \    
+    uint8_t vector = ##vect                                                                \
+    voidDioFuncPtr arg = interruptArgument[vector].new_interrupt_function                  \
+    interruptFunction[interrupt](arg); \
+  }
+
+#if defined(__AVR_ATmega32U4__)
+
+  IMPLEMENT_ISR(INT0_vect, EXTERNAL_INT_0)
+  IMPLEMENT_ISR(INT1_vect, EXTERNAL_INT_1)
+  IMPLEMENT_ISR(INT2_vect, EXTERNAL_INT_2)
+  IMPLEMENT_ISR(INT3_vect, EXTERNAL_INT_3)
+  IMPLEMENT_ISR(INT6_vect, EXTERNAL_INT_4)
+
+#elif defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__) || defined(__AVR_ATmega32U2__) || defined(__AVR_ATmega16U2__) || defined(__AVR_ATmega8U2__)
+
+  IMPLEMENT_ISR(INT0_vect, EXTERNAL_INT_0)
+  IMPLEMENT_ISR(INT1_vect, EXTERNAL_INT_1)
+  IMPLEMENT_ISR(INT2_vect, EXTERNAL_INT_2)
+  IMPLEMENT_ISR(INT3_vect, EXTERNAL_INT_3)
+  IMPLEMENT_ISR(INT4_vect, EXTERNAL_INT_4)
+  IMPLEMENT_ISR(INT5_vect, EXTERNAL_INT_5)
+  IMPLEMENT_ISR(INT6_vect, EXTERNAL_INT_6)
+  IMPLEMENT_ISR(INT7_vect, EXTERNAL_INT_7)
+
+#elif defined(EICRA) && defined(EICRB)
+
+  IMPLEMENT_ISR(INT0_vect, EXTERNAL_INT_2)
+  IMPLEMENT_ISR(INT1_vect, EXTERNAL_INT_3)
+  IMPLEMENT_ISR(INT2_vect, EXTERNAL_INT_4)
+  IMPLEMENT_ISR(INT3_vect, EXTERNAL_INT_5)
+  IMPLEMENT_ISR(INT4_vect, EXTERNAL_INT_0)
+  IMPLEMENT_ISR(INT5_vect, EXTERNAL_INT_1)
+  IMPLEMENT_ISR(INT6_vect, EXTERNAL_INT_6)
+  IMPLEMENT_ISR(INT7_vect, EXTERNAL_INT_7)
 
 
 
+#else
 
-/*Define the new Funciton Pointer Data Type with argurment pointer*/ 
-typedef void (*voidDioFuncPtrArg)(void*);
+  IMPLEMENT_ISR(INT0_vect, EXTERNAL_INT_0)
+  IMPLEMENT_ISR(INT1_vect, EXTERNAL_INT_1)
 
-static void nothing(void*) {
+#if defined(EICRA) && defined(ISC20)
+  IMPLEMENT_ISR(INT2_vect, EXTERNAL_INT_2)
+#endif
+
+#endif
+
+
+static void nothing(void) {
+
 }
 
 
-void interrupt_vector_1(void) 
-{
-  
-}
 
-
-void interrupt_vector_2(void)
-{
-  
-}
-
-
-void interrupt_vector_3(void)
-{
-  
-}
-
-
-void interrupt_vector_4(void)
-{
-  
-}
-
-
-void interrupt_vector_5(void)
-{
-  
-}
-
-
-void interrupt_vector_6(void)
-{
-  
-}
-
-
-void interrupt_vector_7(void)
-{
-  
-}
-
-
-void interrupt_vector_8(void)
-{
-  
-}
-
-
-
+/**
+ * Crate a new array named interruptArguments, in the same way as the interruptFunction array was defined.
+ * This is needed to store the arguments paramter, which will be set, when a interrupt will be triggered
+ */
+static Interrupt_Source_t interruptArgument[EXTERNAL_NUM_INTERRUPTS] = {
+#if EXTERNAL_NUM_INTERRUPTS > 8
+    #warning There are more than 8 external interrupts. Some callbacks may not be initialized.
+    INTERRUPT_SOOURCE_INIT_NULL ,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 7
+    INTERRUPT_SOOURCE_INIT_NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 6
+    INTERRUPT_SOOURCE_INIT_NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 5
+    INTERRUPT_SOOURCE_INIT_NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 4
+    INTERRUPT_SOOURCE_INIT_NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 3
+    INTERRUPT_SOOURCE_INIT_NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 2
+    INTERRUPT_SOOURCE_INIT_NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 1
+    INTERRUPT_SOOURCE_INIT_NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 0
+    INTERRUPT_SOOURCE_INIT_NULL,
+#endif
+};
 
 
 /**
  * define the new Interrupt Function array in the same way as it was in the original file
  * Only the naming was updated
  */
-static volatile voidDioFuncPtrArg interruptFunction[EXTERNAL_NUM_INTERRUPTS] = {
+static volatile voidFuncPtr interruptFunction[EXTERNAL_NUM_INTERRUPTS] = {
 #if EXTERNAL_NUM_INTERRUPTS > 8
     #warning There are more than 8 external interrupts. Some callbacks may not be initialized.
-    (voidDioFuncPtrArg)nothing,
+    (voidFuncPtr)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 7
-    (voidDioFuncPtrArg)nothing,
+    (voidFuncPtr)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 6
-    (voidDioFuncPtrArg)nothing,
+    (voidFuncPtr)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 5
-    (voidDioFuncPtrArg)nothing,
+    (voidFuncPtr)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 4
-    (voidDioFuncPtrArg)nothing,
+    (voidFuncPtr)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 3
-    (voidDioFuncPtrArg)nothing,
+    (voidFuncPtr)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 2
-    (voidDioFuncPtrArg)nothing,
+    (voidFuncPtr)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 1
-    (voidDioFuncPtrArg)nothing,
+    (voidFuncPtr)nothing,
 #endif
 #if EXTERNAL_NUM_INTERRUPTS > 0
-    (voidDioFuncPtrArg)nothing,
-#endif
-};
-
-/**
- * Crate a new array named interruptArguments, in the same way as the interruptFunction array was defined.
- * This is needed to store the arguments paramter, which will be set, when a interrupt will be triggered
- */
-static void* interruptArgument[EXTERNAL_NUM_INTERRUPTS] = {
-#if EXTERNAL_NUM_INTERRUPTS > 8
-    #warning There are more than 8 external interrupts. Some callbacks may not be initialized.
-    NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 7
-    NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 6
-    NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 5
-    NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 4
-    NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 3
-    NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 2
-    NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 1
-    NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 0
-    NULL,
+    (voidFuncPtr)nothing,
 #endif
 };
 
 /**
  * This is the updated attachInterrupt function, which allows now also to handover parameter. 
  */
-void attachInterruptArg(uint8_t interruptNum, voidDioFuncPtrArg userFunc, void * arg, int mode) {
+void attachInterruptArg(uint8_t interruptNum, int mode, Dio* mThis) {
   if(interruptNum < EXTERNAL_NUM_INTERRUPTS) {
     interruptFunction[interruptNum] = userFunc;
    
-    /*Here is the main change*/ 
-    interruptArgument[interruptNum] = arg;
     // Configure the interrupt mode (trigger on low input, any change, rising
     // edge, or falling edge).  The mode constants were chosen to correspond
     // to the configuration bits in the hardware register, so we simply shift
@@ -324,53 +325,5 @@ void attachInterruptArg(uint8_t interruptNum, voidDioFuncPtrArg userFunc, void *
   }
 }
 
-#define IMPLEMENT_ISR(vect, interrupt) \
-  ISR(vect##_new) { \
-    void* arg = interruptArgument[interrupt]; \
-    interruptFunction[interrupt](arg); \
-  }
-
-#if defined(__AVR_ATmega32U4__)
-
-IMPLEMENT_ISR(INT0_vect, EXTERNAL_INT_0)
-IMPLEMENT_ISR(INT1_vect, EXTERNAL_INT_1)
-IMPLEMENT_ISR(INT2_vect, EXTERNAL_INT_2)
-IMPLEMENT_ISR(INT3_vect, EXTERNAL_INT_3)
-IMPLEMENT_ISR(INT6_vect, EXTERNAL_INT_4)
-
-#elif defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__) || defined(__AVR_ATmega32U2__) || defined(__AVR_ATmega16U2__) || defined(__AVR_ATmega8U2__)
-
-IMPLEMENT_ISR(INT0_vect, EXTERNAL_INT_0)
-IMPLEMENT_ISR(INT1_vect, EXTERNAL_INT_1)
-IMPLEMENT_ISR(INT2_vect, EXTERNAL_INT_2)
-IMPLEMENT_ISR(INT3_vect, EXTERNAL_INT_3)
-IMPLEMENT_ISR(INT4_vect, EXTERNAL_INT_4)
-IMPLEMENT_ISR(INT5_vect, EXTERNAL_INT_5)
-IMPLEMENT_ISR(INT6_vect, EXTERNAL_INT_6)
-IMPLEMENT_ISR(INT7_vect, EXTERNAL_INT_7)
-
-#elif defined(EICRA) && defined(EICRB)
-
-IMPLEMENT_ISR(INT0_vect, EXTERNAL_INT_2)
-IMPLEMENT_ISR(INT1_vect, EXTERNAL_INT_3)
-IMPLEMENT_ISR(INT2_vect, EXTERNAL_INT_4)
-IMPLEMENT_ISR(INT3_vect, EXTERNAL_INT_5)
-IMPLEMENT_ISR(INT4_vect, EXTERNAL_INT_0)
-IMPLEMENT_ISR(INT5_vect, EXTERNAL_INT_1)
-IMPLEMENT_ISR(INT6_vect, EXTERNAL_INT_6)
-IMPLEMENT_ISR(INT7_vect, EXTERNAL_INT_7)
-
-
-
-#else
-
-IMPLEMENT_ISR(INT0_vect, EXTERNAL_INT_0)
-IMPLEMENT_ISR(INT1_vect, EXTERNAL_INT_1)
-
-#if defined(EICRA) && defined(ISC20)
-IMPLEMENT_ISR(INT2_vect, EXTERNAL_INT_2)
-#endif
-
-#endif
 #endif
 #endif
