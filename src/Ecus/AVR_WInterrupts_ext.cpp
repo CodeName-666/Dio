@@ -142,7 +142,7 @@ void Dio_attachInterrupt(uint8_t pin, int mode, Dio* mThis)
     uint8_t vector_idx = digitalPinToInterrupt(pin);
 	  
     interruptArgument
-
+    attachInterrupt
 	  attachInterruptArg(digitalPinToInterrupt(vector_idx), mode, mThis);
   }
 }
