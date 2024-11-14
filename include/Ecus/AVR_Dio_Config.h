@@ -16,6 +16,13 @@
 
 class Dio;
 
+typedef void (*voidDioFuncPtr)(Dio*);
+
+typedef struct {
+  voidDioFuncPtr new_interrupt_function;
+  Dio * dio_instance;
+
+}Interrupt_Source_t;
 
 #define IS_INTERRUPT_PIN(pin)                       \
   (digitalPinToInterrupt(pin) != NOT_AN_INTERRUPT)
@@ -23,18 +30,10 @@ class Dio;
 
 #define INTERRUPT_SOOURCE_INIT_NULL       \
     {                                     \
-      (voidFuncPtr)NULL,                  \
+      (voidDioFuncPtr)NULL,                  \
       (Dio*)NULL                          \
     } 
 
-
-typedef void (*voidDioFuncPtr)(void);
-
-typedef struct {
-  voidDioFuncPtr new_interrupt_function;
-  Dio * dio_instance;
-
-}Interrupt_Source_t;
 
 typedef enum {
     GPIO_NV = -1,
@@ -136,22 +135,8 @@ typedef enum {
   #endif
 } Dio_t;
 
-/**
- * 
- */
-extern void attachInterruptArg(uint8_t interruptNum, int mode, Dio* mThis);
 
-
-inline static void Dio_attachInterrupt(uint8_t pin, int mode, Dio* mThis)
-{
-  if (IS_INTERRUPT_PIN(pin))
-  {
-    uint8_t vector_idx = digitalPinToInterrupt(pin);
-	  // use the local interrupt routine which takes the ArgStructure as argument
-	  attachInterruptArg(digitalPinToInterrupt(vector_idx), mode, mThis);
-  }
-}
-
+void Dio_attachInterrupt(uint8_t pin, int mode, Dio* mThis9,
 
 #endif
 #endif /* DIO_AVR_DIO_CONFIG_H_ */
