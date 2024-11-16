@@ -109,6 +109,11 @@ public:
     */
    void loop(void);
 
+   /**
+    * 
+    */
+   void interruptHandler(void);
+
 
 
 #if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_CALLBACKS
@@ -163,12 +168,12 @@ protected:
     */
    void setInterrupInterface(InterruptMode_t mode);
 
+
    /**
     * @brief Event handler for processing pin level changes.
     * @param current_level The current level of the pin.
     */
    void eventHandler(Level_t current_level);
-
    /**
     * @brief Handles the interrupt event and emits or executes the appropriate callback.
     */
@@ -183,8 +188,7 @@ public: // Interrupt interfaces
    EVENT_SIGNAL(on_high, Dio*);
 #endif
 
-private:
-   static void interruptHandler(Dio* interrupt_source);
+
 
 
 #if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_CALLBACKS

@@ -9,30 +9,27 @@
 #define _AVR_DIO_CONFIG_H_
 #if ARDUINO_ARCH_AVR
 
+#define CONCAT(a, b) a##b
+#define EXPAND_AND_CONCAT(a, b) CONCAT(a, b)  
 
-#include "wiring_private.h"
+// Angepasstes GET_ISR_FUNCTION Macro
+#define GET_ISR_FUNCTION(vect) EXPAND_AND_CONCAT(Dio_IsrFunction_, vect)
 
-
-
-class Dio;
-
-typedef void (*voidDioFuncPtr)(Dio*);
-
-typedef struct {
-  voidDioFuncPtr new_interrupt_function;
-  Dio * dio_instance;
-
-}Interrupt_Source_t;
+#define PRE_DEFINE_ISR(vect) void EXPAND_AND_CONCAT(Dio_IsrFunction_, vect)(void)
 
 #define IS_INTERRUPT_PIN(pin)                       \
   (digitalPinToInterrupt(pin) != NOT_AN_INTERRUPT)
 
 
-#define INTERRUPT_SOOURCE_INIT_NULL       \
-    {                                     \
-      (voidDioFuncPtr)NULL,                  \
-      (Dio*)NULL                          \
-    } 
+typedef void (*DioCallback)(void*);
+typedef void (*voidIsrPtr)(void);
+
+typedef struct {
+
+  voidIsrPtr isrPtr;
+  void* dio_instance;
+
+}Interrupt_Source_t;
 
 
 typedef enum {
@@ -136,7 +133,48 @@ typedef enum {
 } Dio_t;
 
 
-void Dio_attachInterrupt(uint8_t pin, int mode, Dio* mThis9,
+void Dio_attachInterrupt(uint8_t pin, int mode, void* mThis);
+
+#if defined(__AVR_ATmega32U4__)
+
+  PRE_DEFINE_ISR(INT0_vect_num);
+  PRE_DEFINE_ISR(INT1_vect_num);
+  PRE_DEFINE_ISR(INT2_vect_num);
+  PRE_DEFINE_ISR(INT3_vect_num);
+  PRE_DEFINE_ISR(INT6_vect_num);
+
+#elif defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__) || defined(__AVR_ATmega32U2__) || defined(__AVR_ATmega16U2__) || defined(__AVR_ATmega8U2__)
+
+  PRE_DEFINE_ISR(INT0_vect_num);
+  PRE_DEFINE_ISR(INT1_vect_num);
+  PRE_DEFINE_ISR(INT2_vect_num);
+  PRE_DEFINE_ISR(INT3_vect_num);
+  PRE_DEFINE_ISR(INT4_vect_num);
+  PRE_DEFINE_ISR(INT5_vect_num);
+  PRE_DEFINE_ISR(INT6_vect_num);
+  PRE_DEFINE_ISR(INT7_vect_num);
+
+#elif defined(EICRA) && defined(EICRB)
+
+
+  PRE_DEFINE_ISR(INT0_vect_num);
+  PRE_DEFINE_ISR(INT1_vect_num);
+  PRE_DEFINE_ISR(INT2_vect_num);
+  PRE_DEFINE_ISR(INT3_vect_num);
+  PRE_DEFINE_ISR(INT4_vect_num);
+  PRE_DEFINE_ISR(INT5_vect_num);
+  PRE_DEFINE_ISR(INT6_vect_num);
+  PRE_DEFINE_ISR(INT7_vect_num);
+
+#else
+
+  PRE_DEFINE_ISR(INT0_vect_num);
+  PRE_DEFINE_ISR(INT1_vect_num);
+
+#if defined(EICRA) && defined(ISC20)
+  PRE_DEFINE_ISR(INT2_vect_num);
+#endif
+#endif
 
 #endif
 #endif /* DIO_AVR_DIO_CONFIG_H_ */

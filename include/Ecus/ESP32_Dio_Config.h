@@ -51,17 +51,15 @@ typedef enum
 typedef void (*voidDioFuncPtrArg)(void*);
 
 
+
 extern "C"
 {
 	extern void __attachInterruptFunctionalArg(uint8_t pin, voidDioFuncPtrArg userFunc, void * arg, int intr_type, bool functional);
 }
 
 
-inline static void Dio_attachInterrupt(uint8_t pin, voidDioFuncPtrArg intRoutine,void * arg, int mode)
-{
-	// use the local interrupt routine which takes the ArgStructure as argument
-	__attachInterruptFunctionalArg (digitalPinToGPIONumber(pin), (voidDioFuncPtrArg) intRoutine, arg, mode, false);
-}
+void Dio_attachInterrupt(uint8_t pin, int mode, void * arg);
+
 
 
 #endif

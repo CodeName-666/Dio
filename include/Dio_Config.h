@@ -13,21 +13,17 @@
     #include "Event.h"
 #endif
 
+
 #if ARDUINO_ARCH_ESP8266
     #include "Ecus/ESP8266_Dio_Config.h"
 #elif ARDUINO_ARCH_AVR
-    #include "Ecus/Avr_Dio_Config.h"
+    #include "Ecus/AVR_Dio_Config.h"
 #elif ARDUINO_ARCH_ESP32
     #include "Ecus/ESP32_Dio_Config.h"
 #else
     #error "ECU not Supported"
 #endif
 
-
-
-/**
- * @brief Enumeration of interrupt modes for GPIO pins.
- */
 typedef enum
 {
     INTERRUPT_ON_RISING = RISING,                          /**< Interrupt triggered on rising edge */

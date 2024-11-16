@@ -24,9 +24,6 @@
   Modified 1 August 2010 by Mark Sproul
 */
 
-#ifndef AVR_WINTERRUPTS_EXT_H
-#define AVR_WINTERRUPTS_EXT_H
-
 
 #if ARDUINO_ARCH_AVR
 
@@ -37,24 +34,57 @@
 #include <stdio.h>
 
 #include "wiring_private.h"
+
+
 #include "Ecus/AVR_Dio_Config.h"
+#include "Dio.h"
 
 
-static Interrupt_Source_t interruptArgument[EXTERNAL_NUM_INTERRUPTS];
+/**
+ * Crate a new array named interruptArguments, in the same way as the interruptFunction array was defined.
+ * This is needed to store the arguments paramter, which will be set, when a interrupt will be triggered
+ */
+static Interrupt_Source_t interruptArgument[EXTERNAL_NUM_INTERRUPTS] = {
+#if EXTERNAL_NUM_INTERRUPTS > 8
+    #warning There are more than 8 external interrupts. Some callbacks may not be initialized.
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 7
+    GET_ISR_FUNCTION(INT0_vect_num), NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 6
+    GET_ISR_FUNCTION(INT1_vect_num), NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 5
+    GET_ISR_FUNCTION(INT2_vect_num), NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 4
+    GET_ISR_FUNCTION(INT3_vect_num), NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 3
+    GET_ISR_FUNCTION(INT4_vect_num), NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 2
+    GET_ISR_FUNCTION(INT5_vect_num), NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 1
+    GET_ISR_FUNCTION(INT6_vect_num), NULL,
+#endif
+#if EXTERNAL_NUM_INTERRUPTS > 0
+    GET_ISR_FUNCTION(INT7_vect_num), NULL,
+#endif
+};
 
 
-#define GET_ISR_FUNCTION(vect)    \
-    interrupt_function_##vect
-
-#define IMPLEMENT_ISR_FUNCTION(vect)                                                        \
-    static void interrupt_function_##vect(void)                                                \
-    {                                                                                          \    
-      uint8_t vector = ##vect;                                                                \
-      voidDioFuncPtr fnc = interruptArgument[vector].new_interrupt_function;                  \
-      Dio* dio = interruptArgument[vector].dio_instance;                                      \
-      fnc(dio);                                                                              \
+#define IMPLEMENT_ISR_FUNCTION(vect)                                                    \
+    void EXPAND_AND_CONCAT(interrupt_function_, vect)(void)                             \
+    {                                                                                   \
+      uint8_t vector = vect;                                                            \
+      Dio* dio = static_cast<Dio*>(interruptArgument[vector].dio_instance);             \
+      if(dio != NULL)                                                                   \
+      {                                                                                 \
+        dio->interruptHandler();                                                        \
+      }                                                                                 \
     }
-
 
 #if defined(__AVR_ATmega32U4__)
 
@@ -99,53 +129,17 @@ static Interrupt_Source_t interruptArgument[EXTERNAL_NUM_INTERRUPTS];
 #endif
 
 
-/**
- * Crate a new array named interruptArguments, in the same way as the interruptFunction array was defined.
- * This is needed to store the arguments paramter, which will be set, when a interrupt will be triggered
- */
-static Interrupt_Source_t interruptArgument[EXTERNAL_NUM_INTERRUPTS] = {
-#if EXTERNAL_NUM_INTERRUPTS > 8
-    #warning There are more than 8 external interrupts. Some callbacks may not be initialized.
-    INTERRUPT_SOOURCE_INIT_NULL ,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 7
-    INTERRUPT_SOOURCE_INIT_NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 6
-    INTERRUPT_SOOURCE_INIT_NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 5
-    INTERRUPT_SOOURCE_INIT_NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 4
-    INTERRUPT_SOOURCE_INIT_NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 3
-    INTERRUPT_SOOURCE_INIT_NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 2
-    INTERRUPT_SOOURCE_INIT_NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 1
-    INTERRUPT_SOOURCE_INIT_NULL,
-#endif
-#if EXTERNAL_NUM_INTERRUPTS > 0
-    INTERRUPT_SOOURCE_INIT_NULL,
-#endif
-};
-
-
-void Dio_attachInterrupt(uint8_t pin, int mode, Dio* mThis)
+void Dio_attachInterrupt(uint8_t pin, int mode, void* mThis)
 {
   if (IS_INTERRUPT_PIN(pin))
   {
     uint8_t vector_idx = digitalPinToInterrupt(pin);
-	  
-    interruptArgument
-    attachInterrupt
-	  attachInterruptArg(digitalPinToInterrupt(vector_idx), mode, mThis);
+    interruptArgument[vector_idx].dio_instance = mThis;
+    voidIsrPtr isr = interruptArgument[vector_idx].isrPtr;
+    attachInterrupt(vector_idx, isr, mode); 
   }
 }
 
-#endif
+
+
 #endif
