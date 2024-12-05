@@ -158,14 +158,13 @@ void Dio::eventHandler(Level_t current_level)
         }
 
 #if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_EVENTS
-            EVENT_EMIT(m_on_change_signal,this);
+        EVENT_EMIT(m_on_change_signal, this);
 #elif DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_CALLBACKS
-            execCallback(m_on_change_callback);
+        execCallback(m_on_change_callback);
 #endif
         old_level = current_level;
     }
 }
-
 
 #if DIO_ENABLE_INTERRUPT_OUTPUT == DIO_USE_CALLBACKS
 void Dio::setOnChangeCbk(DioCallback cbk)
@@ -202,10 +201,8 @@ inline void Dio::execCallback(DioCallback cbk)
 }
 #endif
 
-
- void Dio::interruptHandler(void)
- {
-    //DBIF_LOG_INFO("INTERRUPT TRIGGERED FROM IO %i", (int)interrupt_source->getDio());
+void Dio::interruptHandler(void)
+{
+    // DBIF_LOG_INFO("INTERRUPT TRIGGERED FROM IO %i", (int)interrupt_source->getDio());
     eventHandler(get());
-
- }
+}
